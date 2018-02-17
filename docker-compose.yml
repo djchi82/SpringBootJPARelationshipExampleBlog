@@ -1,0 +1,8 @@
+version: '2'
+services:
+  db:
+    build: ./database/
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./database/dbdata:/var/lib/postgresql/data

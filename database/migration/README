@@ -1,0 +1,67 @@
+To ensure successful bootstrap database creation, and up-to-date schema, follow the instructions
+in below.
+
+1. Create a database in Postgres named "rmworkflow", which is the same as the
+database name in AWS, e.g., CREATE DATABASE rmworkflow.
+
+2. Copy database/environments/database.properties-template to create a new
+database/environments/database.properties file.  Change the JDBC setting in this file or 
+change your Postgres configurations.  One example of the JDBC setting is as follows:
+
+## JDBC connection properties.
+driver=org.postgresql.Driver
+url=jdbc:postgresql://localhost:5432/rmworkflow
+username=postgres
+password=postgres
+
+You should use the same JDBC settings in the src/main/resources/rm-workflow-ws.properties.  If that 
+file does not exist, copy from rm-workflow-ws.properties-template in the same folder.
+
+# To refresh DB
+3. run 'migrate bootstrap --env=database --path=migration -f' to create the new schema and update it to the current version of the database 
+# To migrate up
+4. run 'migrate up --env=database --path=migration'
+# To create a new migration file
+5. run 'migrate new --env=database --path=migration <script name>'
+
+More tips:
+1. /database/migration/scripts/bootstrap.sql file contains the initial DDL
+statements for the rmworkflow database.  
+
+2. Schema changes may go through MyBatis Migrations tool, which
+are then documented in the CHANGELOG table in the rmworkflow database.  Here are 
+some tips to use this tool:
+	a. Run the migrate new command...
+	   It will create an empty sql file in database/migration/scripts/ folder. The prefix
+	   "RM-XXX" is the JIRA/Greenhopper ticket ID associated with this update. 
+	    
+	    (There should be a JIRA ticket associated with all source code and database changes. 
+	    Use either the ID of the JIRA task that necessitated the database change, or if an 
+	    appropriate JIRA task does not exist, create a JIRA ticket that captures the 
+	    rationale for the database change and use its ID.)
+	   
+	   I recommend using this template for the script:
+	   
+--// create table xxx
+-- Migration SQL that makes the change goes here.
+CREATE TABLE xxx (id int);
+
+
+--//@UNDO
+-- SQL to undo the change goes here.
+DROP TABLE IF EXISTS xxx;
+
+		The @UNDO part is for rolling back the change to the schema; it is 
+		optional, but without it you will need to create another script to undo the change.
+
+	   If you want to drop a table, e.g., table "xxx", from the database
+	   "mvn migration:new -Dmigration.description=RM-213-script-name-here"
+		You can use the template above as well, but with DROP statement on top of CREATE
+		statement.  Similarly, the prefix "RM-213" corresponds to the JIRA/Greenhopper 
+		ticket ID.  
+
+	c. "mvn migration:up" to apply all pending changes to the schema; you can use 
+	  "-Dmigration.up.steps=2" to specify the number of pending changes you want to force.
+	d. "mvn migration:down" by default only rolls back 1 step to "pending" status.  You can
+	use "-Dmigration.down.steps=2" to specifiy the number of steps.
+

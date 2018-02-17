@@ -1,0 +1,6 @@
+com/tenmilesquare/blog/springboot/jpa/ServletInitializer.class
+com/tenmilesquare/blog/springboot/jpa/Application.class
+com/tenmilesquare/blog/springboot/jpa/domain/Artist.class
+com/tenmilesquare/blog/springboot/jpa/domain/Release.class
+com/tenmilesquare/blog/springboot/jpa/domain/Recording.class
+com/tenmilesquare/blog/springboot/jpa/domain/Ranking.class
